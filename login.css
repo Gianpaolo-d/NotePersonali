@@ -1,0 +1,89 @@
+body, html {
+    height: 100%;
+    width: 100%;
+    background-color: rgb(10, 10, 10);
+    color: white;
+    font-family: "Avenir Medium", system-ui, sans-serif;
+}
+
+.centered-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.centered-container div  {
+    margin: 20px;
+    text-align: center;
+}
+
+.login-container {
+    border: 2px solid #4b4b4b;
+    padding: 20px;
+    border-radius: 25px;
+    background-color: rgb(28, 28, 28);
+    width: 280px;
+}
+
+.login-container h2 {
+    margin-bottom: 30px;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group input {
+    width: 65%;
+    padding: 10px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(42, 42, 42);
+    padding: 13px;
+    color: white;
+    padding-left: 40px;
+}
+
+.input-group input:focus {
+    border: 1px solid #ffffff;
+}
+
+.input-group label {
+    text-align: left;
+    display: block;
+    font-size: 14px;
+    margin-left: 15px;
+}
+
+.input-group i {
+    position: absolute;
+    left: 28px;
+    top: 36px;
+    color: #888;
+}
+
+
+.login-container button {
+    border: 0;
+    background-color: #ffffff;
+    padding: 13px;
+    width: 75%;
+    font-size: 18px;
+    margin: 10px;
+    font-weight: bold;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.login-container button:hover {
+    cursor: pointer;
+}
+
+.login-container a {
+    font-size: 12px;
+    color: white;
+}
+
