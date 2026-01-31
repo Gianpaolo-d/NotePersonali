@@ -1,0 +1,123 @@
+html, body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    font-family: "Avenir Medium", system-ui, sans-serif;
+    background-color: #000000;
+    color: white;
+}
+
+h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+p {
+    margin: 0;
+}
+
+header {
+    background-color: #1a1a1a;
+    padding: 20px;
+    padding-left: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;    
+    border-bottom: 1px solid #4b4b4b;
+}
+
+.userinfo-container {
+    margin-right: 10px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+
+.header-left button  {
+    background-color: #222222;
+    border: 1px solid rgb(86, 86, 86);
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    padding: 10px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.header-left button:hover {
+    cursor: pointer;
+    background-color: #353535;
+}
+
+.header-left div {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.note-container {
+    padding: 35px 18% 0px 18%;
+}
+
+#note-title {
+    font-size: 32px;
+    margin-bottom: 20px;
+    background-color: #000000;
+    border: 0;
+    border-bottom: 2px solid #4b4b4b;
+    padding: 10px;
+    width: 100%;
+    color: white;
+    outline: none;
+    font-weight: bold;
+}
+
+#note-content {
+    font-size: 15px;
+    min-height: 400px;
+    background-color: #000000;
+    border: 0;
+    padding: 10px;
+    height: 100%;
+    width: 100%;
+    color: white;
+    outline: none;
+    resize: none;
+}
+
+
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0px rgba(255, 255, 255, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 15px rgba(255, 255, 255, 0);
+  }
+}
+
+#save-button {
+    background-color: #ffffff;
+    color: black;
+    border: 1px solid rgb(86, 86, 86);
+    border-radius: 10px;
+    font-size: 18px;
+    padding: 10px;
+    transition: 0.3s;
+    cursor: pointer;
+    width: 100px;
+    height: 40px;
+    animation: pulse-animation 2s infinite;
+    transform: 0.3s;
+    opacity: 0;
+}
+
+.note-stats-container {
+    margin-top: 15px;
+    padding: 0 18% 0 18%;
+    display: flex;
+    gap: 20px;
+}

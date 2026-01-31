@@ -1,4 +1,6 @@
 body, html {
+    margin: 0;
+    padding: 0;
     height: 100%;
     width: 100%;
     background-color: rgb(10, 10, 10);
@@ -76,10 +78,12 @@ body, html {
     font-weight: bold;
     border-radius: 10px;
     margin-bottom: 20px;
+    transition: 0.3s;
 }
 
 .login-container button:hover {
     cursor: pointer;
+    background-color: #b8b8b8;
 }
 
 .login-container a {
@@ -87,3 +91,9 @@ body, html {
     color: white;
 }
 
+.login-container p {
+    font-size: 16px;
+    color: red;
+    margin: 0;
+    margin-top: 10px;
+}
