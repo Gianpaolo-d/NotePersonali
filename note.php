@@ -20,6 +20,14 @@ try {
     exit;
 }
 
+if (isset($_POST["title"]) && isset($_POST["content"]) && isset($_POST["noteid"])) {
+    $stmt = $conn->prepare("UPDATE note SET title = ?, content = ?, lastedit = NOW() WHERE id = ? AND uid = ?");
+    $stmt->execute([$_POST["title"], $_POST["content"], $_POST["noteid"], $_SESSION['uid']]);
+    echo "OK";
+    return;
+}
+
+
 $stmt = $conn->prepare("SELECT username FROM utenti WHERE id = ?");
 $stmt->execute([$_SESSION['uid']]);
 $user = $stmt->fetch();
@@ -41,13 +49,6 @@ if (isset($_GET["id"]))
         echo "Nota non trovata";
         exit;
     }
-}
-
-if (isset($_POST["title"]) && isset($_POST["content"])) {
-    $stmt = $conn->prepare("UPDATE note SET title = ?, content = ?, lastedit = NOW() WHERE id = ? AND uid = ?");
-    $stmt->execute([$_POST["title"], $_POST["content"], $_GET["id"], $_SESSION['uid']]);
-    echo "OK";
-    return;
 }
 
 ?>
@@ -90,8 +91,8 @@ if (isset($_POST["title"]) && isset($_POST["content"])) {
     <div class="note-stats-container">
     
         <p><i class="fa-solid fa-pen-to-square"></i> Ultima modifica: <?php echo $note['lastedit']; ?></p>
-        <p><i class="fa-solid fa-font"></i> Parole: </p>
-        <p><i class="fa-solid fa-font"></i> Caratteri: </p>
+        <p><i class="fa-solid fa-file-word"></i> Parole: <span id ="note-words"></span> </p>
+        <p><i class="fa-solid fa-font"></i> Caratteri: <span id="note-chars"></span> </p>
     
     </div>
 
@@ -99,6 +100,39 @@ if (isset($_POST["title"]) && isset($_POST["content"])) {
 
 
 <script>
+    var saveTimeout;
+    function checkChanges(justSaved = false) {
+        if (noteContent.value !== lastSavedContent || noteTitle.value !== lastSavedNoteTitle) 
+        {
+            clearTimeout(saveTimeout);
+            saveButton.style.backgroundColor = "white";
+            saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salva';
+            saveButton.style.display = "block";
+            setTimeout(() => {
+                saveButton.style.opacity = 1;
+            }, 1);
+        }
+        else
+        {
+            if (justSaved)
+            {
+                saveButton.style.backgroundColor = "rgb(0, 255, 110)";
+                saveButton.innerHTML = '<i class="fa-solid fa-check"></i> Salvato!';
+            }
+            
+            saveTimeout = setTimeout(() => {
+                saveButton.style.opacity = 0;
+                setTimeout(() => {
+                    saveButton.style.display = "none";
+                }, 300);
+            }, justSaved ? 1000 : 0);
+        }
+    };
+
+    function updateNoteStats() {
+        words.textContent = noteContent.value.trim().split(/\s+/).length;
+        chars.textContent = noteContent.value.length;
+    };
 
     window.onload = function() {
         let hour = new Date().getHours();
@@ -110,6 +144,9 @@ if (isset($_POST["title"]) && isset($_POST["content"])) {
             greeting.textContent = "Buon pomeriggio";
         else
             greeting.textContent = "Buonasera";
+
+
+        updateNoteStats();
     };
 
 
@@ -120,16 +157,46 @@ if (isset($_POST["title"]) && isset($_POST["content"])) {
     const noteTitle = document.getElementById("note-title");
     var lastSavedNoteTitle = noteTitle.value;
 
-    const checkChanges = function() {
-        if (noteContent.value !== lastSavedContent || noteTitle.value !== lastSavedNoteTitle) 
-            saveButton.style.opacity = 1;
-        else
-            saveButton.style.opacity = 0;
-    };
+    const words = document.getElementById("note-words");
+    const chars = document.getElementById("note-chars");
 
-    noteContent.addEventListener("input", checkChanges);
+    noteContent.addEventListener("input", () => {
+        checkChanges();
+        updateNoteStats();
+    });
+
     noteTitle.addEventListener("input", checkChanges);
     
+
+    async function saveNote() {
+        let req = await fetch("note.php?id=<?php echo $_GET['id']; ?>", {
+            method: "POST",
+            body: new URLSearchParams({
+                "title": noteTitle.value,
+                "content": noteContent.value,
+                "noteid": "<?php echo $_GET['id']; ?>"
+            })
+        });
+        
+        if (await req.text() != "OK")
+            return;
+
+        lastSavedContent = noteContent.value;
+        lastSavedNoteTitle = noteTitle.value;
+        checkChanges(true);
+    }
+
+    saveButton.addEventListener("click", saveNote);
+
+    // Save if ctrl s is pressed
+
+    window.addEventListener("keydown", function(e) {
+        if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            saveNote();
+        }
+    });
+
 
 </script>
 </html>
