@@ -61,6 +61,7 @@ header {
 
 .note-container {
     padding: 35px 18% 0px 18%;
+    height: 75vh;
 }
 
 #note-title {
@@ -111,6 +112,7 @@ header {
     animation: pulse-animation 2s infinite;
     transform: 0.3s;
     opacity: 0;
+    display: none;
 }
 
 .note-stats-container {
@@ -118,4 +120,20 @@ header {
     padding: 0 18% 0 18%;
     display: flex;
     gap: 20px;
+}
+
+#delete-button {
+    background-color: transparent;
+    color: white;
+    border: 1px solid rgb(86, 86, 86);
+    border-radius: 10px;
+    font-size: 18px;
+    padding: 10px;
+    transition: 0.3s;
+}
+
+#delete-button:hover {
+    cursor: pointer;
+    background-color: #353535;
+    color: red;
 }

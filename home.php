@@ -1,4 +1,5 @@
 <?php
+    ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
 
     session_start();
 
@@ -23,7 +24,7 @@
         else
             $username = "?";
 
-        $stmt = $conn->prepare("SELECT * FROM note WHERE uid = ?");
+        $stmt = $conn->prepare("SELECT * FROM note WHERE uid = ? ORDER BY lastedit DESC");
         $stmt->execute([$_SESSION['uid']]);
         $note = $stmt->fetchAll();
         
@@ -61,13 +62,21 @@
     </header>
     
     <div class="notes-container">
+        <div class="new-note" onclick="window.location.href='note.php'">
+            <h2><i class="fa-solid fa-plus"></i> Nuova nota</h2>
+        </div>
+
+
         <?php
         
         foreach ($note as $n) {
             echo "<div onclick='window.location.href=\"note.php?id=" . $n['id'] . "\"' class='note'>";
             echo "<h2>" . $n['title'] . "</h2>";
             echo "<p class='note-content'>" . $n['content'] . "</p>";
-            echo "<p class='note-lastedit'>" . $n['lastedit'] . "</p>";
+
+            $lastEdit = new DateTime($n["lastedit"]);
+            echo "<p class='note-lastedit'>" . $lastEdit->format("d/m/Y H:i:s") . "</p>";
+
             echo "</div>";
         }
         ?>

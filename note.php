@@ -1,4 +1,5 @@
 <?php
+    ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
 
 session_start();
 
@@ -20,12 +21,42 @@ try {
     exit;
 }
 
-if (isset($_POST["title"]) && isset($_POST["content"]) && isset($_POST["noteid"])) {
-    $stmt = $conn->prepare("UPDATE note SET title = ?, content = ?, lastedit = NOW() WHERE id = ? AND uid = ?");
-    $stmt->execute([$_POST["title"], $_POST["content"], $_POST["noteid"], $_SESSION['uid']]);
-    echo "OK";
-    return;
+function handleNoteActions() {
+    global $conn;
+
+    if (!isset($_POST["action"]))
+        return "";
+
+    switch ($_POST["action"]) {
+        case "delete":
+            if (!isset($_POST["noteid"]) || !is_numeric($_POST["noteid"]))
+                return "404";
+      
+            $stmt = $conn->prepare("DELETE FROM note WHERE id = ? AND uid = ?");
+            $stmt->execute([$_POST["noteid"], $_SESSION['uid']]);
+            return "200";
+
+        case "save":
+            if (!isset($_POST["title"]) || !isset($_POST["content"]))
+                return "400";
+
+            if (isset($_POST["noteid"]) && is_numeric($_POST["noteid"]))
+            {
+                $stmt = $conn->prepare("UPDATE note SET title = ?, content = ?, lastedit = CURRENT_TIMESTAMP WHERE id = ? AND uid = ?");
+                $stmt->execute([$_POST["title"], $_POST["content"], $_POST["noteid"], $_SESSION['uid']]);
+            } else {
+                $stmt = $conn->prepare("INSERT INTO note (uid, title, content) VALUES (?, ?, ?)");
+                $stmt->execute([$_SESSION['uid'], $_POST["title"], $_POST["content"]]);
+                return "200 ".$conn->lastInsertId();
+            }
+
+            return "200";
+    }
 }
+
+$actionResult = handleNoteActions();
+if ($actionResult != "")
+    return header("HTTP/1.1 " . $actionResult);
 
 
 $stmt = $conn->prepare("SELECT username FROM utenti WHERE id = ?");
@@ -36,7 +67,7 @@ if ($user)
 else
     $username = "?";
 
-if (isset($_GET["id"]))
+if (isset($_GET["id"]) && is_numeric($_GET["id"]))
 {
     $stmt = $conn->prepare("SELECT * FROM note WHERE id = ? AND uid = ?");
     $stmt->execute([$_GET["id"], $_SESSION['uid']]);
@@ -74,6 +105,10 @@ if (isset($_GET["id"]))
             </div>
             
             <div>   
+                <?php 
+                    if (isset($_GET["id"]))
+                        echo '<button id="delete-button"><i class="fa-solid fa-trash"></i> Elimina</button>';
+                ?>
                 <button id="save-button"><i class="fa-solid fa-floppy-disk"></i> Salva</button>
             </div>
         </div>
@@ -90,7 +125,19 @@ if (isset($_GET["id"]))
 
     <div class="note-stats-container">
     
-        <p><i class="fa-solid fa-pen-to-square"></i> Ultima modifica: <?php echo $note['lastedit']; ?></p>
+        <p><i class="fa-solid fa-pen-to-square"></i> Ultima modifica: 
+            <span id ="note-lastsave">
+                <?php 
+                    if (isset($note["lastedit"])) 
+                    {
+                        $lastEdit = new DateTime($note["lastedit"]);
+                        echo $lastEdit->format("d/m/Y H:i:s");
+                    }
+                    else 
+                        echo "Nessuna modifica" 
+                ?>
+            </span>
+        </p>
         <p><i class="fa-solid fa-file-word"></i> Parole: <span id ="note-words"></span> </p>
         <p><i class="fa-solid fa-font"></i> Caratteri: <span id="note-chars"></span> </p>
     
@@ -130,7 +177,7 @@ if (isset($_GET["id"]))
     };
 
     function updateNoteStats() {
-        words.textContent = noteContent.value.trim().split(/\s+/).length;
+        words.textContent = noteContent.value.split(" ").length;
         chars.textContent = noteContent.value.length;
     };
 
@@ -151,6 +198,7 @@ if (isset($_GET["id"]))
 
 
     const saveButton = document.getElementById("save-button");
+    const deleteButton = document.getElementById("delete-button");
 
     const noteContent = document.getElementById("note-content");
     var lastSavedContent = noteContent.value;
@@ -159,6 +207,7 @@ if (isset($_GET["id"]))
 
     const words = document.getElementById("note-words");
     const chars = document.getElementById("note-chars");
+    const lastsave = document.getElementById("note-lastsave");
 
     noteContent.addEventListener("input", () => {
         checkChanges();
@@ -169,21 +218,32 @@ if (isset($_GET["id"]))
     
 
     async function saveNote() {
-        let req = await fetch("note.php?id=<?php echo $_GET['id']; ?>", {
+        if (noteTitle.value == "")
+            noteTitle.value = "Nota del "+ new Date().toLocaleDateString();
+
+        let req = await fetch("note.php", {
             method: "POST",
             body: new URLSearchParams({
+                "action": "save",
                 "title": noteTitle.value,
                 "content": noteContent.value,
-                "noteid": "<?php echo $_GET['id']; ?>"
+                "noteid": "<?php if(isset($_GET['id'])) echo $_GET['id']; ?>"
             })
         });
-        
-        if (await req.text() != "OK")
+
+        if (req.status !== 200) 
             return;
 
-        lastSavedContent = noteContent.value;
-        lastSavedNoteTitle = noteTitle.value;
-        checkChanges(true);
+        let respTxt = await req.statusText;
+        if (respTxt === "OK") {
+            lastSavedContent = noteContent.value;
+            lastSavedNoteTitle = noteTitle.value;
+            lastsave.textContent = new Date().toLocaleString();
+            checkChanges(true);
+        } else 
+            window.location.href = "note.php?id=" + respTxt;
+        
+    
     }
 
     saveButton.addEventListener("click", saveNote);
@@ -196,6 +256,26 @@ if (isset($_GET["id"]))
             saveNote();
         }
     });
+
+
+    if (deleteButton)
+        deleteButton.addEventListener("click", async function() {
+            if (!confirm("Sei sicuro di voler eliminare questa nota? Questa azione è irreversibile"))
+                return;
+
+            let req = await fetch("note.php", {
+                method: "POST",
+                body: new URLSearchParams({
+                    "action": "delete",
+                    "noteid": "<?php if(isset($_GET['id'])) echo $_GET['id']; ?>"
+                })
+            });
+
+            if (req.status !== 200) 
+                return;
+
+            window.location.href = "home.php";
+        });
 
 
 </script>
