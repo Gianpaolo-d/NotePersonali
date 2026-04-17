@@ -18,7 +18,7 @@ function handleRegistration() {
         $conn = new PDO("mysql:host=localhost;dbname=notepersonali;charset=utf8", "root", "");
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $stmt = $conn->prepare("SELECT id FROM utenti WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
         $stmt->execute([$_POST['username']]);
         $user = $stmt->fetch();
 
@@ -26,7 +26,7 @@ function handleRegistration() {
             return "Username già esistente";
         
         $hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("INSERT INTO utenti (username, password) VALUES (?, ?)");
+        $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
         $stmt->execute([$_POST['username'], $hash]);
 
         $_SESSION['uid'] = $conn->lastInsertId();
@@ -49,7 +49,7 @@ if (!empty($_POST))
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note Personali - Registrazione</title>
-    <link rel="stylesheet" href="login_register.css">
+    <link rel="stylesheet" href="styles/login_register.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -82,7 +82,7 @@ if (!empty($_POST))
 
                 <a href="login.php">Hai gia un account? Accedi cliccando qui</a>
 
-                <p> <?php echo $registerError  ?> </p>
+                <p id="errortxt"> <?php echo $registerError  ?> </p>
 
                 <button>Regitrati</button>
             </div>

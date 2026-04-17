@@ -16,7 +16,7 @@ function handleLogin()
         $conn = new PDO("mysql:host=localhost;dbname=notepersonali;charset=utf8", "root", "");
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $stmt = $conn->prepare("SELECT id, password FROM utenti WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?");
         $stmt->execute([$_POST['username']]);
         $user = $stmt->fetch();
 
@@ -43,7 +43,7 @@ if (!empty($_POST))
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note Personali - Login</title>
-    <link rel="stylesheet" href="login_register.css">
+    <link rel="stylesheet" href="styles/login_register.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>

@@ -16,7 +16,7 @@
         $conn = new PDO("mysql:host=localhost;dbname=notepersonali;charset=utf8", "root", "");
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $stmt = $conn->prepare("SELECT username FROM utenti WHERE id = ?");
+        $stmt = $conn->prepare("SELECT username FROM users WHERE id = ?");
         $stmt->execute([$_SESSION['uid']]);
         $user = $stmt->fetch();
         if ($user)
@@ -24,7 +24,7 @@
         else
             $username = "?";
 
-        $stmt = $conn->prepare("SELECT * FROM note WHERE uid = ? ORDER BY lastedit DESC");
+        $stmt = $conn->prepare("SELECT * FROM notes WHERE uid = ? ORDER BY lastedit DESC");
         $stmt->execute([$_SESSION['uid']]);
         $note = $stmt->fetchAll();
         
@@ -42,7 +42,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note Personali - Home</title>
-    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="styles/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>

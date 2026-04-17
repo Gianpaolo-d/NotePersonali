@@ -1,6 +1,10 @@
 <?php
-    ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
+ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
 
+require("note_class.php");
+
+
+// Inizializzazzione sessione e controllo login
 session_start();
 
 if (!isset($_SESSION['uid'])) {
@@ -8,19 +12,23 @@ if (!isset($_SESSION['uid'])) {
     return;
 }
 
-$username = "";
-$noteTitle = "";
-$noteContent = "";
 
+// Inizializzazione variabili utili per la pagina
+$username = "";
+$note = new Note("", "", "", "", "");
+
+
+// Connessione al DB
 try {
     $conn = new PDO("mysql:host=localhost;dbname=notepersonali;charset=utf8", "root", "");
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
 } catch(PDOException $e) {
     echo "Errore interno del DB server";
     exit;
 }
 
+
+// Gestione azioni POST per salvataggio ed eliminazione note
 function handleNoteActions() {
     global $conn;
 
@@ -30,36 +38,37 @@ function handleNoteActions() {
     switch ($_POST["action"]) {
         case "delete":
             if (!isset($_POST["noteid"]) || !is_numeric($_POST["noteid"]))
-                return "404";
+                return "404"; // Not found
       
-            $stmt = $conn->prepare("DELETE FROM note WHERE id = ? AND uid = ?");
+            $stmt = $conn->prepare("DELETE FROM notes WHERE id = ? AND uid = ?");
             $stmt->execute([$_POST["noteid"], $_SESSION['uid']]);
-            return "200";
+            return "200"; // OK
 
         case "save":
             if (!isset($_POST["title"]) || !isset($_POST["content"]))
-                return "400";
+                return "400"; // Bad request
 
             if (isset($_POST["noteid"]) && is_numeric($_POST["noteid"]))
             {
-                $stmt = $conn->prepare("UPDATE note SET title = ?, content = ?, lastedit = CURRENT_TIMESTAMP WHERE id = ? AND uid = ?");
+                $stmt = $conn->prepare("UPDATE notes SET title = ?, content = ?, lastedit = CURRENT_TIMESTAMP WHERE id = ? AND uid = ?");
                 $stmt->execute([$_POST["title"], $_POST["content"], $_POST["noteid"], $_SESSION['uid']]);
             } else {
-                $stmt = $conn->prepare("INSERT INTO note (uid, title, content) VALUES (?, ?, ?)");
+                $stmt = $conn->prepare("INSERT INTO notes (uid, title, content) VALUES (?, ?, ?)");
                 $stmt->execute([$_SESSION['uid'], $_POST["title"], $_POST["content"]]);
-                return "200 ".$conn->lastInsertId();
+                return "200 ".$conn->lastInsertId(); // OK
             }
 
-            return "200";
+            return "200"; // OK
     }
 }
 
 $actionResult = handleNoteActions();
 if ($actionResult != "")
-    return header("HTTP/1.1 " . $actionResult);
+    return header("HTTP/1.1 " . $actionResult); // Se è stata eseguita un'azione POST, restituiamo lo status code e terminiamo l'esecuzione
 
 
-$stmt = $conn->prepare("SELECT username FROM utenti WHERE id = ?");
+// Recupero delle informazioni utente
+$stmt = $conn->prepare("SELECT username FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['uid']]);
 $user = $stmt->fetch();
 if ($user)
@@ -67,16 +76,17 @@ if ($user)
 else
     $username = "?";
 
+
+// Recupero informazioni sulla nota e controllo della validita di essa
 if (isset($_GET["id"]) && is_numeric($_GET["id"]))
 {
-    $stmt = $conn->prepare("SELECT * FROM note WHERE id = ? AND uid = ?");
+    $stmt = $conn->prepare("SELECT * FROM notes WHERE id = ? AND uid = ?");
     $stmt->execute([$_GET["id"], $_SESSION['uid']]);
-    $note = $stmt->fetch();
+    $noteFetched = $stmt->fetch();
 
-    if ($note) {
-        $noteTitle = $note['title'];
-        $noteContent = $note['content'];
-    } else {
+    if ($noteFetched)
+        $note = new Note($noteFetched['id'], $noteFetched['title'], $noteFetched['content'], $noteFetched['lastedit'], $noteFetched['creationdate']);
+    else {
         echo "Nota non trovata";
         exit;
     }
@@ -92,7 +102,7 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"]))
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note personali - Nota</title>
-    <link rel="stylesheet" href="note.css">
+    <link rel="stylesheet" href="styles/note.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -119,34 +129,58 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"]))
     </header>
 
     <div class="note-container">
-        <input type="text" placeholder="Titolo della nota" id="note-title" value="<?php echo $noteTitle; ?>">
-        <textarea placeholder="Scrivi qui la tua nota..." id="note-content"><?php echo $noteContent; ?></textarea>
+        <input type="text" placeholder="Titolo della nota" id="note-title" value="<?php echo $note->title; ?>">
+        <textarea placeholder="Scrivi qui la tua nota..." id="note-content"><?php echo $note->content; ?></textarea>
     </div>
 
     <div class="note-stats-container">
-    
-        <p><i class="fa-solid fa-pen-to-square"></i> Ultima modifica: 
-            <span id ="note-lastsave">
+        <p>
+            <i class="fa-solid fa-calendar"></i> Creazione: 
+            <span>
                 <?php 
-                    if (isset($note["lastedit"])) 
-                    {
-                        $lastEdit = new DateTime($note["lastedit"]);
-                        echo $lastEdit->format("d/m/Y H:i:s");
-                    }
+                    if (isset($_GET["id"]))
+                        echo (new DateTime($note->lastEdit))->format("d/m/Y H:i:s");
                     else 
-                        echo "Nessuna modifica" 
+                        echo "Creazione non effettuata";
                 ?>
             </span>
         </p>
-        <p><i class="fa-solid fa-file-word"></i> Parole: <span id ="note-words"></span> </p>
-        <p><i class="fa-solid fa-font"></i> Caratteri: <span id="note-chars"></span> </p>
-    
+        <p>
+            <i class="fa-solid fa-pen-to-square"></i> Ultima modifica: 
+            <span id ="note-lastsave">
+                <?php 
+                    if (isset($_GET["id"]))
+                        echo (new DateTime($note->lastEdit))->format("d/m/Y H:i:s");
+                    else 
+                        echo "Nessuna modifica";
+                ?>
+            </span>
+        </p>
+        <p>
+            <i class="fa-solid fa-file-word"></i> Parole: <span id ="note-words"></span>
+        </p>
+        <p>
+            <i class="fa-solid fa-font"></i> Caratteri: <span id="note-chars"></span> 
+        </p>
     </div>
 
 </body>
 
 
 <script>
+    const saveButton = document.getElementById("save-button");
+    const deleteButton = document.getElementById("delete-button");
+
+    const noteContent = document.getElementById("note-content");
+    var lastSavedContent = noteContent.value;
+    const noteTitle = document.getElementById("note-title");
+    var lastSavedNoteTitle = noteTitle.value;
+
+    const words = document.getElementById("note-words");
+    const chars = document.getElementById("note-chars");
+    const lastsave = document.getElementById("note-lastsave");
+
+
     var saveTimeout;
     function checkChanges(justSaved = false) {
         if (noteContent.value !== lastSavedContent || noteTitle.value !== lastSavedNoteTitle) 
@@ -177,45 +211,9 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"]))
     };
 
     function updateNoteStats() {
-        words.textContent = noteContent.value.split(" ").length;
         chars.textContent = noteContent.value.length;
+        words.textContent = noteContent.value.length ? noteContent.value.split(" ").length : "0";
     };
-
-    window.onload = function() {
-        let hour = new Date().getHours();
-        let greeting = document.getElementById("greeting");
-
-        if (hour < 12)
-            greeting.textContent = "Buongiorno";
-        else if (hour < 18)
-            greeting.textContent = "Buon pomeriggio";
-        else
-            greeting.textContent = "Buonasera";
-
-
-        updateNoteStats();
-    };
-
-
-    const saveButton = document.getElementById("save-button");
-    const deleteButton = document.getElementById("delete-button");
-
-    const noteContent = document.getElementById("note-content");
-    var lastSavedContent = noteContent.value;
-    const noteTitle = document.getElementById("note-title");
-    var lastSavedNoteTitle = noteTitle.value;
-
-    const words = document.getElementById("note-words");
-    const chars = document.getElementById("note-chars");
-    const lastsave = document.getElementById("note-lastsave");
-
-    noteContent.addEventListener("input", () => {
-        checkChanges();
-        updateNoteStats();
-    });
-
-    noteTitle.addEventListener("input", checkChanges);
-    
 
     async function saveNote() {
         if (noteTitle.value == "")
@@ -242,21 +240,41 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"]))
             checkChanges(true);
         } else 
             window.location.href = "note.php?id=" + respTxt;
-        
-    
+
     }
+
+
+    window.onload = function() {
+        const hour = new Date().getHours();
+        const greeting = document.getElementById("greeting");
+
+        if (hour < 12)
+            greeting.textContent = "Buongiorno";
+        else if (hour < 18)
+            greeting.textContent = "Buon pomeriggio";
+        else
+            greeting.textContent = "Buonasera";
+
+        updateNoteStats();
+    };
+
+
+    noteContent.addEventListener("input", () => {
+        checkChanges();
+        updateNoteStats();
+    });
+
+    noteTitle.addEventListener("input", checkChanges);
 
     saveButton.addEventListener("click", saveNote);
 
-    // Save if ctrl s is pressed
-
+    // Ctrl+S Shortcut
     window.addEventListener("keydown", function(e) {
         if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
             saveNote();
         }
     });
-
 
     if (deleteButton)
         deleteButton.addEventListener("click", async function() {
@@ -279,4 +297,5 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"]))
 
 
 </script>
+
 </html>

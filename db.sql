@@ -19,28 +19,29 @@
 CREATE DATABASE IF NOT EXISTS `notepersonali` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `notepersonali`;
 
--- Dump della struttura di tabella notepersonali.note
-CREATE TABLE IF NOT EXISTS `note` (
+-- Dump della struttura di tabella notepersonali.notes
+CREATE TABLE IF NOT EXISTS `notes` (
   `uid` mediumint(9) NOT NULL,
   `id` mediumint(9) NOT NULL AUTO_INCREMENT,
-  `titolo` varchar(50) NOT NULL,
-  `contenuto` longtext NOT NULL,
-  `modifica` datetime NOT NULL DEFAULT current_timestamp(),
+  `title` varchar(50) NOT NULL,
+  `content` longtext NOT NULL,
+  `lastedit` datetime NOT NULL DEFAULT current_timestamp(),
+  `creationdate` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `FK_note_utenti` (`uid`),
-  CONSTRAINT `FK_note_utenti` FOREIGN KEY (`uid`) REFERENCES `utenti` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  CONSTRAINT `FK_note_utenti` FOREIGN KEY (`uid`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- L’esportazione dei dati non era selezionata.
 
--- Dump della struttura di tabella notepersonali.utenti
-CREATE TABLE IF NOT EXISTS `utenti` (
+-- Dump della struttura di tabella notepersonali.users
+CREATE TABLE IF NOT EXISTS `users` (
   `id` mediumint(9) NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- L’esportazione dei dati non era selezionata.
 

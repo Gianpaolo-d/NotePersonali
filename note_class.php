@@ -1,16 +1,17 @@
 <?php 
-
     class Note {
         public $id;
         public $title;
         public $content;
         public $lastEdit;
+        public $creationDate;
 
-        function __construct($id, $title, $content, $lastEdit) {
+        function __construct($id, $title, $content, $lastEdit, $creationDate) {
             $this->id = $id;
             $this->title = $title;
             $this->content = $content;
             $this->lastEdit = $lastEdit;
+            $this->creationDate = $creationDate;
         }
 
         public function getContentLength() {
@@ -32,19 +33,5 @@
             echo "Contenuto: " . $this->content . "<br>";
             echo "Ultima modifica: " . $this->lastEdit . "<br>";
         }
-    }
-
-
-    $notaTest = new Note(1, "Nota di test", "Contenuto della nota di test", "2026/02/28 08:44:00");
-    $notaTest->printInformations();
-    echo "<br>";
-    echo "Lunghezza contenuto: " . $notaTest->getContentLength() . "<br>";
-    echo "E' vuota?: " . ($notaTest->isEmpty() ? "Si" : "No") . "<br>";
-    echo "Ultima modifica formattata: " . $notaTest->getFormattedLastEdit("H:i:s d/m/Y") . "<br>";
-    
-
-
-
-
-   
+    }   
 ?>

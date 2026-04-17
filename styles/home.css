@@ -73,7 +73,14 @@ header {
 
 .note-content {
     color: #b0b0b0;
-    font-size: 15px;
+    font-size: 0.95rem;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }   
 
 .note-lastedit {
@@ -97,4 +104,36 @@ header {
     cursor: pointer;
     background-color: #262626;
     border: 1px solid #4b4b4b;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        padding-left: 10px;
+    }
+    
+    .userinfo-container {
+        gap: 10px;
+    }
+    
+    .notes-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin: 10px;
+    }
+    
+    .note, .new-note {
+        padding: 10px;
+    }
+    
+    .note h2 {
+        font-size: 1.1rem;
+    }
+    
+    .note-content {
+        font-size: 0.85rem;
+        -webkit-line-clamp: 3;
+    }
 }

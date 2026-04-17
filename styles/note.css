@@ -61,7 +61,7 @@ header {
 
 .note-container {
     padding: 35px 18% 0px 18%;
-    height: 75vh;
+    height: 78vh;
 }
 
 #note-title {
@@ -83,7 +83,7 @@ header {
     background-color: #000000;
     border: 0;
     padding: 10px;
-    height: 100%;
+    height: 65vh;
     width: 100%;
     color: white;
     outline: none;
@@ -120,6 +120,7 @@ header {
     padding: 0 18% 0 18%;
     display: flex;
     gap: 20px;
+    background-color: black;
 }
 
 #delete-button {
@@ -136,4 +137,48 @@ header {
     cursor: pointer;
     background-color: #353535;
     color: red;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 18px;
+    }
+    
+    header {
+        padding: 10px;
+        padding-left: 10px;
+    }
+    
+    .note-container {
+        padding: 20px 5%;
+    }
+    
+    #note-title {
+        font-size: 24px;
+    }
+    
+    #note-content {
+        font-size: 14px;
+        min-height: 300px;
+    }
+    
+    .header-left button, #save-button, #delete-button {
+        font-size: 16px;
+        padding: 8px;
+        margin-right: 15px;
+    }
+    
+    .note-stats-container {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 5%;
+    }
+
+    .userinfo-container {
+        padding-right: 0px;
+    }
+
+    .header-left {
+        gap: 25px;
+    }
 }
