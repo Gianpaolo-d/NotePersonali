@@ -1,5 +1,20 @@
 -- --------------------------------------------------------
+-- DATABASE SCHEMA (IT / EN)
+--
+-- DESCRIZIONE (IT)
+-- SQL di creazione del database notepersonali e delle tabelle:
+--  - users: utenti (username univoco, password hashata)
+--  - notes: note (legate a users tramite uid con vincolo FK)
+--
+-- DESCRIPTION (EN)
+-- SQL schema for database notepersonali and tables:
+--  - users: users (unique username, hashed password)
+--  - notes: notes (linked to users via uid foreign key)
+-- --------------------------------------------------------
+
+-- --------------------------------------------------------
 -- Host:                         127.0.0.1
+
 -- Versione server:              10.4.28-MariaDB - Source distribution
 -- S.O. server:                  osx10.10
 -- HeidiSQL Versione:            12.14.1.1

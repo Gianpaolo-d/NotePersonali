@@ -1,3 +1,17 @@
+/*
+================================================================================
+ LOGIN / REGISTER CSS (IT / EN)
+--------------------------------------------------------------------------------
+DESCRIZIONE (IT)
+- Stili comuni per login.php e register.php.
+- Layout centrato, card del form, campi input con icone e media queries.
+
+DESCRIPTION (EN)
+- Shared styles for login.php and register.php.
+- Centered layout, form card, input fields with icons and media queries.
+================================================================================
+*/
+
 body, html {
     margin: 0;
     padding: 0;
@@ -7,6 +21,7 @@ body, html {
     color: white;
     font-family: "Avenir Medium", system-ui, sans-serif;
 }
+
 
 .centered-container {
     display: flex;

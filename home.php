@@ -1,4 +1,24 @@
 <?php
+/*
+================================================================================
+ HOME (IT / EN)
+--------------------------------------------------------------------------------
+DESCRIZIONE (IT)
+- Pagina principale dell’app “NotePersonali”.
+- Richiede una sessione valida (utente autenticato tramite $_SESSION['uid']).
+- Recupera dal DB tutte le note dell’utente loggato e le mostra ordinate
+  per ultima modifica (lastedit DESC).
+- Mostra anche lo username dell’utente e un pulsante di logout.
+
+DESCRIPTION (EN)
+- Main page of the “NotePersonali” app.
+- Requires a valid session (authenticated user via $_SESSION['uid']).
+- Fetches all notes belonging to the logged-in user and renders them
+  ordered by last edit (lastedit DESC).
+- Shows the username and a logout button.
+================================================================================
+*/
+
     ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
 
     session_start();
@@ -7,6 +27,7 @@
         header("Location: login.php");
         return;
     }
+
 
 
     $note = [];

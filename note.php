@@ -1,5 +1,32 @@
 <?php
+/*
+================================================================================
+ NOTE PAGE (IT / EN)
+--------------------------------------------------------------------------------
+DESCRIZIONE (IT)
+- Pagina dedicata alla visualizzazione e gestione di una singola nota.
+- Richiede sessione valida ($_SESSION['uid']).
+- Supporta:
+  - GET id: carica la nota dal DB (filtrata per uid dell’utente).
+  - POST action=save: salva/inserisce titolo+contenuto della nota.
+  - POST action=delete: elimina la nota dal DB.
+- La parte JS calcola parole/caratteri e permette salvataggio con pulsante
+  e scorciatoia Ctrl+S.
+
+DESCRIPTION (EN)
+- Page for viewing and managing a single note.
+- Requires a valid session (\$_SESSION['uid']).
+- Supports:
+  - GET id: loads the note from the DB (filtered by the user uid).
+  - POST action=save: saves/creates the note (title + content).
+  - POST action=delete: deletes the note.
+- The JS part updates word/char counters and enables save via button and
+  Ctrl+S shortcut.
+================================================================================
+*/
+
 ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
+
 
 require("note_class.php");
 
@@ -211,8 +238,48 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"]))
     };
 
     function updateNoteStats() {
+        if (!noteContent.value)
+        {
+            chars.textContent = "0";
+            words.textContent = "0";
+            return;
+        }
+
         chars.textContent = noteContent.value.length;
-        words.textContent = noteContent.value.length ? noteContent.value.split(" ").length : "0";
+
+        // Regex: /\b\w+\b/g
+        //
+        // SIGNIFICATO DETTAGLIATO:
+        // \b  -> boundary (confine di parola, inizio o fine parola)
+        // \w  -> "word character" = [A-Z a-z 0-9 _]
+        // +   -> uno o più caratteri precedenti (\w)
+        // \b  -> altro confine di parola
+        // g   -> global (trova tutte le occorrenze, non solo la prima)
+
+        //words.textContent = noteContent.value.match(/\b\w+\b/g).length;
+
+        // Regex: /[\p{L}]+/gu
+        //
+        // SIGNIFICATO DETTAGLIATO:
+        //
+        // [ ]     -> classe di caratteri
+        //            ("accetta qualsiasi carattere qui dentro")
+        //
+        // \p{L}   -> qualsiasi LETTERA Unicode
+        //            include:
+        //            - lettere normali: a b c
+        //            - maiuscole: A B C
+        //            - accentate: à è é ò ù
+        //            - lettere di altre lingue
+        //
+        // +       -> una o più lettere consecutive
+        //
+        // u       -> modalità Unicode necessaria per usare \p{L}
+        //
+        // g       -> global
+        //            trova tutte le occorrenze nel testo
+
+        words.textContent = noteContent.value.match(/[\p{L}]+/gu).length;
     };
 
     async function saveNote() {

@@ -1,5 +1,26 @@
 <?php
+/*
+================================================================================
+ LOGIN (IT / EN)
+--------------------------------------------------------------------------------
+DESCRIZIONE (IT)
+- Gestisce l’autenticazione degli utenti.
+- Se l’utente ha già una sessione attiva (isset $_SESSION['uid']), viene
+  reindirizzato automaticamente a home.php.
+- Alla POST valida username + password (hashato con password_hash) e setta
+  $_SESSION['uid'].
+
+DESCRIPTION (EN)
+- Handles user authentication.
+- If the user already has an active session (isset $_SESSION['uid']),
+  redirects to home.php.
+- On POST, verifies username + password (stored as password_hash) and sets
+  $_SESSION['uid'].
+================================================================================
+*/
+
 ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
+
 
 session_start();
 

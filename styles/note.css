@@ -1,3 +1,19 @@
+/*
+================================================================================
+ NOTE CSS (IT / EN)
+--------------------------------------------------------------------------------
+DESCRIZIONE (IT)
+- Stili per note.php.
+- Editor (titolo + textarea), pulsante salva/elimina, statistiche nota e
+  responsive design.
+
+DESCRIPTION (EN)
+- Styles for note.php.
+- Editor (title + textarea), save/delete buttons, note statistics and
+  responsive layout.
+================================================================================
+*/
+
 html, body {
     padding: 0;
     margin: 0;
@@ -6,6 +22,7 @@ html, body {
     background-color: #000000;
     color: white;
 }
+
 
 h1 {
     margin: 0;

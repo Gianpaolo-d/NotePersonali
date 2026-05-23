@@ -1,5 +1,28 @@
 <?php
+/*
+================================================================================
+ REGISTER (IT / EN)
+--------------------------------------------------------------------------------
+DESCRIZIONE (IT)
+- Pagina di registrazione utenti.
+- Se $_SESSION['uid'] è già presente, reindirizza a home.php.
+- Valida la lunghezza dello username.
+- Controlla se lo username esiste già.
+- Salva la password usando password_hash e crea l’utente nel DB.
+- Autentica l’utente impostando $_SESSION['uid'].
+
+DESCRIPTION (EN)
+- User registration page.
+- If $_SESSION['uid'] exists, redirects to home.php.
+- Validates username length.
+- Checks if the username is already taken.
+- Stores the password using password_hash and creates the user in DB.
+- Logs the user in by setting $_SESSION['uid'].
+================================================================================
+*/
+
 ini_set('display_errors', 1); ini_set('display_startup_errors', 1); error_reporting(E_ALL);
+
 
 session_start();
 
